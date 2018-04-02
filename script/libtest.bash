@@ -17,6 +17,7 @@
 KUBELESS_MANIFEST=kubeless.yaml
 KUBELESS_MANIFEST_RBAC=kubeless-rbac.yaml
 KAFKA_MANIFEST=kafka-zookeeper.yaml
+KAFKA_MANIFEST_RBAC=kafka-zookeeper-rbac.yaml
 
 KUBECTL_BIN=$(which kubectl)
 : ${KUBECTL_BIN:?ERROR: missing binary: kubectl}
@@ -259,7 +260,7 @@ redeploy_with_rbac_roles() {
 
 deploy_kafka() {
     echo_info "Deploy kafka ... "
-    kubectl create -f $KAFKA_MANIFEST
+    kubectl create -f $KAFKA_MANIFEST_RBAC
 }
 
 deploy_function() {

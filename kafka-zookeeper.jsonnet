@@ -5,9 +5,20 @@ local container = k.core.v1.container;
 local service = k.core.v1.service;
 local deployment = k.apps.v1beta1.deployment;
 local serviceAccount = k.core.v1.serviceAccount;
+local objectMeta = k.core.v1.objectMeta;
 
 local namespace = "kubeless";
-local controller_account_name = "controller-acct";
+local controller_account_name = "kafka-controller-acct";
+
+local crd = [
+  {
+    apiVersion: "apiextensions.k8s.io/v1beta1",
+    kind: "CustomResourceDefinition",
+    metadata: objectMeta.name("kafkatriggers.kubeless.io"),
+    spec: {group: "kubeless.io", version: "v1beta1", scope: "Namespaced", names: {plural: "kafkatriggers", singular: "kafkatrigger", kind: "KafkaTrigger"}},
+    description: "CRD object for Kafka trigger type",
+  },
+];
 
 local controllerContainer =
   container.default("kafka-trigger-controller", "bitnami/kafka-trigger-controller:latest") +
@@ -15,14 +26,14 @@ local controllerContainer =
 
 local kubelessLabel = {kubeless: "kafka-trigger-controller"};
 
-local controllerAccount =
+local kafkaControllerAccount =
   serviceAccount.default(controller_account_name, namespace);
 
 local controllerDeployment =
   deployment.default("kafka-trigger-controller", controllerContainer, namespace) +
   {metadata+:{labels: kubelessLabel}} +
   {spec+: {selector: {matchLabels: kubelessLabel}}} +
-  {spec+: {template+: {spec+: {serviceAccountName: controllerAccount.metadata.name}}}} +
+  {spec+: {template+: {spec+: {serviceAccountName: kafkaControllerAccount.metadata.name}}}} +
   {spec+: {template+: {metadata: {labels: kubelessLabel}}}};
 
 local kafkaEnv = [
@@ -212,4 +223,6 @@ local zookeeperHeadlessSvc =
   zookeeperSvc: k.util.prune(zookeeperSvc),
   zookeeperHeadlessSvc: k.util.prune(zookeeperHeadlessSvc),
   controller: k.util.prune(controllerDeployment),
+  kafkaControllerAccount: k.util.prune(kafkaControllerAccount),
+  crd: k.util.prune(crd),
 }

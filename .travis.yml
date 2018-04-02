@@ -104,6 +104,7 @@ script:
       sed -i.bak 's/'":latest"'/'":${CONTROLLER_TAG}"'/g' kubeless-rbac.yaml
       sed -i.bak 's/'":latest"'/'":${CONTROLLER_TAG}"'/g' kubeless-openshift.yaml
       sed -i.bak 's/'":latest"'/'":${CONTROLLER_TAG}"'/g' kafka-zookeeper.yaml
+      sed -i.bak 's/'":latest"'/'":${CONTROLLER_TAG}"'/g' kafka-zookeeper-rbac.yaml
       case $TEST_TARGET in
       unit)
         make test
